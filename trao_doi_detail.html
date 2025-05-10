@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết bài đăng thanh lý</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <link href="./custom.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">
+      <img src="{% static 'images/logo.png' %}" alt="Logo" width="40" height="40" class="d-inline-block align-text-top">
+      Thanh Lý & Gây Quỹ
+    </a>
+
+    <form class="d-flex mx-auto w-50" action="/search/" method="get">
+      <input class="form-control me-2" type="search" name="q" placeholder="Tìm sản phẩm hoặc sự kiện..." aria-label="Search">
+      <button class="btn btn-outline-success" type="submit">Tìm</button>
+    </form>
+
+    <div>
+      {% if request.user.is_authenticated %}
+        <span class="me-2">Xin chào, {{ request.user.username }}</span>
+        <!-- Nút đăng xuất -->
+        <a href="{% url 'logout' %}" class="btn btn-outline-danger">Đăng xuất</a>
+        
+        <!-- Biểu tượng thông báo -->
+        <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#notificationModal">
+          <i class="bi bi-bell"></i> Thông báo
+        </a>
+      {% else %}
+        <a href="#" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<!-- Modal Đăng Nhập -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      <div class="modal-header">
+        <h5 class="modal-title">Đăng nhập</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        {% if login_failed %}
+        <div class="alert alert-danger">Thông tin đăng nhập không chính xác. Vui lòng thử lại.</div>
+        {% endif %}
+        <div class="mb-3">
+          <label for="username" class="form-label">Tên đăng nhập</label>
+          <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Mật khẩu</label>
+          <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <div class="mb-2">
+          <a href="/password-reset/">Quên mật khẩu?</a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Đăng nhập</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Thông báo -->
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Thông báo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        <ul>
+          {% for notification in notifications %}
+          <li>
+            <strong>{{ notification.title }}</strong>
+            <p>{{ notification.content }}</p>
+            <small>{{ notification.noti_time }}</small>
+          </li>
+          {% empty %}
+          <p>Không có thông báo mới.</p>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Post information-->
+<div class="container my-4">
+    <h4 class="mb-4">Chi tiết bài đăng trao đổi</h4>
+  
+    <div class="row">
+      <!-- Product Image -->
+      <div class="col-md-6 mb-3">
+        <img src="{% static 'images/product1.jpg' %}" class="img-fluid rounded border" alt="Ảnh sản phẩm">
+      </div>
+  
+      <!-- Post Details -->
+      <div class="col-md-6">
+        <ul class="list-group mb-3">
+          <li class="list-group-item"><strong>Tiêu đề:</strong> Bán lại iPhone 12 Pro</li>
+          <li class="list-group-item"><strong>Tên sản phẩm:</strong> iPhone 12 Pro 128GB</li>
+          <li class="list-group-item"><strong>Thể loại:</strong> Điện thoại</li>
+          <li class="list-group-item"><strong>Loại bài đăng:</strong> Trao đổi</li>
+          <li class="list-group-item"><strong>Thời gian đã sử dụng:</strong> 1 năm</li>
+          <li class="list-group-item"><strong>Giá mong muốn:</strong> 13,000,000 VND</li>
+          <li class="list-group-item"><strong>Trạng thái:</strong> Đang chờ trao đổi</li>
+        </ul>
+  
+        <!-- Button to trigger exchange form modal -->
+        <div id="actionButtons">
+          <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#exchangeModal">
+            <i class="bi bi-arrow-left-right me-2"></i>Trao đổi ngay
+          </button>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Post Content -->
+    <div class="mt-4">
+      <h5>Nội dung chi tiết</h5>
+      <p>Điện thoại còn mới 98%, pin khỏe, không trầy xước. Mua về chỉ dùng để nghe gọi và chụp ảnh. Bao test 7 ngày, tặng kèm ốp lưng và cáp sạc.</p>
+    </div>
+
+    <!-- User's Offer Detail -->
+    <div class="mt-4" id="userOfferDetail" style="display: none;">
+        <h5>Đề xuất của bạn</h5>
+        <ul class="list-group">
+        <li class="list-group-item"><strong>Tên sản phẩm:</strong> <span id="offerName"></span></li>
+        <li class="list-group-item"><strong>Thể loại:</strong> <span id="offerCategory"></span></li>
+        <li class="list-group-item"><strong>Mô tả:</strong> <span id="offerDescription"></span></li>
+        <li class="list-group-item"><strong>Thời gian đã sử dụng:</strong> <span id="offerUsage"></span></li>
+        <li class="list-group-item"><strong>Trạng thái:</strong> <span id="offerCondition"></span></li>
+        </ul>
+    </div>
+  
+    <!-- Upload User Info Section -->
+    <div class="mt-4" id="uploadUserInfo">
+      <h5>Thông tin người trao đổi</h5>
+      
+      <div id="placeholderInfo" class="alert alert-info">
+        Thông tin chỉ hiển thị khi bạn xác nhận tham gia trao đổi.
+      </div>
+  
+      <ul class="list-group" id="realUserInfo" style="display: none;">
+        <li class="list-group-item"><strong>Họ:</strong> Nguyễn</li>
+        <li class="list-group-item"><strong>Tên:</strong> Văn A</li>
+        <li class="list-group-item"><strong>Email:</strong> nguyenvana@example.com</li>
+        <li class="list-group-item"><strong>Số điện thoại:</strong> 0901234567</li>
+        <li class="list-group-item"><strong>Trường:</strong> Đại học Bách Khoa</li>
+        <li class="list-group-item"><strong>Điểm xã hội:</strong> 85</li>
+        <li class="list-group-item"><strong>Điểm tín dụng:</strong> 92</li>
+        <li class="list-group-item"><strong>Trạng thái tài khoản:</strong> Đang hoạt động</li>
+        <li class="list-group-item"><strong>Vai trò:</strong> Người dùng</li>
+      </ul>
+    </div>
+</div>
+  
+<!-- Modal: Exchange Offer Form -->
+<div class="modal fade" id="exchangeModal" tabindex="-1" aria-labelledby="exchangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <form class="modal-content" id="exchangeForm">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exchangeModalLabel">Đề xuất sản phẩm để trao đổi</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="productName" class="form-label">Tên sản phẩm</label>
+            <input type="text" class="form-control" id="productName" name="productName" required>
+          </div>
+          <div class="mb-3">
+            <label for="productCategory" class="form-label">Thể loại</label>
+            <select class="form-select" id="productCategory" name="productCategory" required>
+              <option value="Điện tử">Điện tử</option>
+              <option value="Thời trang">Thời trang</option>
+              <option value="Gia dụng">Gia dụng</option>
+              <option value="Sách">Sách</option>
+              <option value="Đồ chơi">Đồ chơi</option>
+              <option value="Khác">Khác</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="productDescription" class="form-label">Mô tả</label>
+            <textarea class="form-control" id="productDescription" name="productDescription" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="productImage" class="form-label">Ảnh sản phẩm</label>
+            <input type="file" class="form-control" id="productImage" name="productImage" accept="image/*" required>
+          </div>
+          <div class="mb-3">
+            <label for="usedPeriod" class="form-label">Thời gian đã sử dụng</label>
+            <input type="text" class="form-control" id="usedPeriod" name="usedPeriod" required>
+          </div>
+          <div class="mb-3">
+            <label for="productStatus" class="form-label">Trạng thái</label>
+            <select class="form-select" id="productStatus" name="productStatus" required>
+              <option value="Mới">Mới</option>
+              <option value="Gần như mới">Gần như mới</option>
+              <option value="Đã qua sử dụng">Đã qua sử dụng</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Gửi đề xuất trao đổi</button>
+        </div>
+      </form>
+    </div>
+</div>
+
+<!-- Confirm Exchange Success Modal -->
+<div class="modal fade" id="confirmExchangeModal" tabindex="-1" aria-labelledby="confirmExchangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmExchangeModalLabel">Xác nhận trao đổi</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+        </div>
+        <div class="modal-body">
+          Bạn đã trao đổi thành công sản phẩm này?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Xác nhận</button>
+        </div>
+      </div>
+    </div>
+</div>
+  
+<!-- Footer -->
+<footer class="bg-light text-center text-muted py-3 mt-5">
+    <div>© 2025 Trang Trao Đổi & Quyên Góp | Liên hệ: contact@example.com</div>
+</footer>
+  
+<script>
+    function toggleCategories() {
+        const el = document.getElementById("all-categories");
+        el.style.display = el.style.display === "none" ? "block" : "none";
+    }
+
+    document.getElementById('exchangeForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        // Get input values
+        const name = document.getElementById('productName').value;
+        const category = document.getElementById('productCategory').value;
+        const description = document.getElementById('productDescription').value;
+        const usage = document.getElementById('usedPeriod').value;
+        const condition = document.getElementById('productStatus').value;
+
+        // Fill values into offer detail section
+        document.getElementById('offerName').textContent = name;
+        document.getElementById('offerCategory').textContent = category;
+        document.getElementById('offerDescription').textContent = description;
+        document.getElementById('offerUsage').textContent = usage;
+        document.getElementById('offerCondition').textContent = condition;
+
+        // Show actual info
+        document.getElementById('placeholderInfo').style.display = 'none';
+        document.getElementById('realUserInfo').style.display = 'block';
+        document.getElementById('userOfferDetail').style.display = 'block';
+
+        // Close modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('exchangeModal'));
+        modal.hide();
+
+        // Replace action button
+        const actionButtons = document.getElementById('actionButtons');
+        actionButtons.innerHTML = `
+        <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#confirmExchangeModal">
+            <i class="bi bi-check-circle me-2"></i>Xác nhận trao đổi
+        </button>
+        `;
+  });
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

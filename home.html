@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trang Thanh Lý & Quyên Góp</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="{% static 'style.css' %}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">
+      <img src="{% static 'images/logo.png' %}" alt="Logo" width="40" height="40" class="d-inline-block align-text-top">
+      Thanh Lý & Gây Quỹ
+    </a>
+
+    <form class="d-flex mx-auto w-50" action="/search/" method="get">
+      <input class="form-control me-2" type="search" name="q" placeholder="Tìm sản phẩm hoặc sự kiện..." aria-label="Search">
+      <button class="btn btn-outline-success" type="submit">Tìm</button>
+    </form>
+
+    <div>
+      {% if request.user.is_authenticated %}
+        <span class="me-2">Xin chào, {{ request.user.username }}</span>
+        <!-- Nút đăng xuất -->
+        <a href="{% url 'logout' %}" class="btn btn-outline-danger">Đăng xuất</a>
+        
+        <!-- Biểu tượng thông báo -->
+        <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#notificationModal">
+          <i class="bi bi-bell"></i> Thông báo
+        </a>
+      {% else %}
+        <a href="#" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<!-- Modal Đăng Nhập -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      <div class="modal-header">
+        <h5 class="modal-title">Đăng nhập</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        {% if login_failed %}
+        <div class="alert alert-danger">Thông tin đăng nhập không chính xác. Vui lòng thử lại.</div>
+        {% endif %}
+        <div class="mb-3">
+          <label for="username" class="form-label">Tên đăng nhập</label>
+          <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Mật khẩu</label>
+          <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <div class="mb-2">
+          <a href="/password-reset/">Quên mật khẩu?</a>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Đăng nhập</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal Thông báo -->
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Thông báo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+      </div>
+      <div class="modal-body">
+        <ul>
+          {% for notification in notifications %}
+          <li>
+            <strong>{{ notification.title }}</strong>
+            <p>{{ notification.content }}</p>
+            <small>{{ notification.noti_time }}</small>
+          </li>
+          {% empty %}
+          <p>Không có thông báo mới.</p>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Menu danh mục -->
+<div class="container mt-3">
+  <div class="d-flex flex-wrap gap-2">
+    <button class="btn btn-secondary" onclick="toggleCategories()">Tất cả danh mục</button>
+    <button class="btn btn-outline-primary" onclick="window.location='/products?category=do-dien-tu'">Đồ điện tử</button>
+    <button class="btn btn-outline-primary" onclick="window.location='/products?category=sach'">Sách</button>
+    <button class="btn btn-outline-primary" onclick="window.location='/products?category=thoi-trang'">Thời trang</button>
+  </div>
+  <div id="all-categories" class="mt-2" style="display:none;">
+    <ul>
+      <li><a href="/products?category=do-gia-dung">Đồ gia dụng</a></li>
+      <li><a href="/products?category=do-choi">Đồ chơi</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Sự kiện gây quỹ -->
+<div class="container mt-5">
+  <h4>Sự kiện quyên góp / gây quỹ</h4>
+  <div id="eventCarousel" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner event-carousel">
+      <div class="carousel-item active">
+        <img src="{% static 'images/event1.jpg' %}" class="d-block w-100" alt="Event 1">
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Sự kiện Mùa Xuân 2025</h5>
+          <p>Quyên góp sách giáo khoa cho học sinh vùng cao.</p>
+          <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#loginModal">Tham gia</a>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="{% static 'images/event2.jpg' %}" class="d-block w-100" alt="Event 2">
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Gây quỹ Tết Ấm</h5>
+          <p>Chia sẻ áo ấm và thực phẩm cho người vô gia cư.</p>
+          <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#loginModal">Tham gia</a>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img src="{% static 'images/event3.jpg' %}" class="d-block w-100" alt="Event 3">
+        <div class="carousel-caption d-none d-md-block">
+          <h5>Chiến dịch Xanh</h5>
+          <p>Thu gom đồ điện tử cũ để tái chế bảo vệ môi trường.</p>
+          <a href="#" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#loginModal">Tham gia</a>
+        </div>
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#eventCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#eventCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+  </div>
+</div>
+
+<!-- Sản phẩm mới nhất -->
+<div class="container mt-5">
+  <h4>Sản phẩm mới nhất</h4>
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 mt-3">
+    <div class="col">
+      <a href="/product_detail.html" class="text-decoration-none text-dark">
+        <div class="product-card">
+          <img src="{% static 'images/product1.jpg' %}" class="img-fluid mb-2" alt="Product 1">
+          <h6>Tên sản phẩm 1</h6>
+          <p class="text-muted">Tag: Thanh lý</p>
+          <p>Mô tả ngắn gọn sản phẩm trong khoảng 10 từ.</p>
+        </div>
+      </a>
+    </div>
+    <div class="col">
+      <a href="/product_detail.html" class="text-decoration-none text-dark">
+        <div class="product-card">
+          <img src="{% static 'images/product2.jpg' %}" class="img-fluid mb-2" alt="Product 2">
+          <h6>Tên sản phẩm 2</h6>
+          <p class="text-muted">Tag: Trao đổi</p>
+          <p>Mô tả ngắn gọn sản phẩm trong khoảng 10 từ.</p>
+        </div>
+      </a>
+    </div>
+    <div class="col">
+      <a href="/product_detail.html" class="text-decoration-none text-dark">
+        <div class="product-card">
+          <img src="{% static 'images/product3.jpg' %}" class="img-fluid mb-2" alt="Product 3">
+          <h6>Tên sản phẩm 3</h6>
+          <p class="text-muted">Tag: Thanh lý</p>
+          <p>Mô tả ngắn gọn sản phẩm trong khoảng 10 từ.</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-light text-center text-muted py-3 mt-5">
+  <div>© 2025 Trang Thanh Lý & Quyên Góp | Liên hệ: contact@example.com</div>
+</footer>
+
+<script>
+  function toggleCategories() {
+    const el = document.getElementById("all-categories");
+    el.style.display = el.style.display === "none" ? "block" : "none";
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
