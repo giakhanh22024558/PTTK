@@ -231,29 +231,45 @@
 
       <!-- User's Offer Detail -->
       <div class="mt-4" id="userOfferDetail" style="display: none">
-        <h5>Đề xuất của bạn</h5>
-        <ul class="list-group">
-          <li class="list-group-item">
-            <strong>Tên sản phẩm:</strong>
-            <span id="offerName"></span>
-          </li>
-          <li class="list-group-item">
-            <strong>Thể loại:</strong>
-            <span id="offerCategory"></span>
-          </li>
-          <li class="list-group-item">
-            <strong>Mô tả:</strong>
-            <span id="offerDescription"></span>
-          </li>
-          <li class="list-group-item">
-            <strong>Thời gian đã sử dụng:</strong>
-            <span id="offerUsage"></span>
-          </li>
-          <li class="list-group-item">
-            <strong>Trạng thái:</strong>
-            <span id="offerCondition"></span>
-          </li>
-        </ul>
+        <h5>Đề xuất của bạn (<span id="offerCount">1</span>/3)</h5>
+        <div class="card mb-3">
+          <div class="row g-0 align-items-center">
+            <!-- Product Image -->
+            <div class="col-md-4">
+              <img
+                id="offerImage"
+                src="https://via.placeholder.com/200"
+                class="img-fluid rounded-start"
+                alt="Ảnh sản phẩm đề xuất"
+              />
+            </div>
+
+            <!-- Product Info -->
+            <div class="col-md-8">
+              <div class="card-body">
+                <p class="mb-1">
+                  <strong>Tên sản phẩm:</strong> <span id="offerName"></span>
+                </p>
+                <p class="mb-1">
+                  <strong>Thể loại:</strong> <span id="offerCategory"></span>
+                </p>
+                <p class="mb-1">
+                  <strong>Mô tả:</strong> <span id="offerDescription"></span>
+                </p>
+                <p class="mb-1">
+                  <strong>Thời gian đã sử dụng:</strong>
+                  <span id="offerUsage"></span>
+                </p>
+                <p class="mb-2">
+                  <strong>Trạng thái:</strong> <span id="offerCondition"></span>
+                </p>
+                <button class="btn btn-sm btn-danger" id="deleteOfferBtn">
+                  <i class="bi bi-trash"></i> Xóa yêu cầu
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Upload User Info Section -->
@@ -478,10 +494,13 @@
           // Replace action button
           const actionButtons = document.getElementById("actionButtons");
           actionButtons.innerHTML = `
-        <button type="button" class="btn btn-warning w-100" data-bs-toggle="modal" data-bs-target="#confirmExchangeModal">
-            <i class="bi bi-check-circle me-2"></i>Xác nhận trao đổi
-        </button>
-        `;
+            <button type="button" class="btn btn-warning w-100 mb-2" data-bs-toggle="modal" data-bs-target="#confirmExchangeModal">
+              <i class="bi bi-check-circle me-2"></i>Xác nhận trao đổi
+            </button>
+            <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#exchangeModal">
+              <i class="bi bi-plus-circle me-2"></i>Đưa ra đề xuất trao đổi mới
+            </button>
+          `;
         });
     </script>
 
