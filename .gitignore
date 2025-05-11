@@ -1,4 +1,4 @@
 .prettierrc
-.home
-.moderator
-.style.css
+home.html
+moderator.html
+style.css
