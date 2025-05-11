@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+{% load static %}
+
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Thông tin tài khoản</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- <link href="./custom.css" rel="stylesheet" /> -->
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/"> Tài khoản của bạn </a>
+
+        <div>
+          {% if request.user.is_authenticated %}
+          <span class="me-2">Xin chào, {{ request.user.username }}</span>
+          <!-- Nút đăng xuất -->
+          <a href="{% url 'logout' %}" class="btn btn-outline-danger"
+            >Đăng xuất</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <div class="container my-5">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 mb-4">
+          <div class="list-group">
+            <a
+              href="#user-info"
+              class="list-group-item list-group-item-action active"
+              data-bs-toggle="tab"
+              >Thông tin người dùng</a
+            >
+            <a
+              href="#transaction-history"
+              class="list-group-item list-group-item-action"
+              data-bs-toggle="tab"
+              >Lịch sử giao dịch</a
+            >
+            <a
+              href="#spending-report"
+              class="list-group-item list-group-item-action"
+              data-bs-toggle="tab"
+              >Báo cáo chi tiêu cá nhân</a
+            >
+          </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="col-md-9">
+          <div class="tab-content">
+            <!-- Thông tin người dùng tab -->
+            <div class="tab-pane fade show active" id="user-info">
+              <div class="container mb-5">
+                <h4 class="mb-4">Thông tin người dùng</h4>
+
+                <!-- Scores Section -->
+                <div class="row mb-4">
+                  <div class="col-md-6">
+                    <div class="card shadow-sm">
+                      <div class="card-body">
+                        <h5 class="card-title">Điểm hoạt động xã hội</h5>
+                        <p class="card-text fs-5">
+                          <strong>{{ social_score }}</strong>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="card shadow-sm">
+                      <div class="card-body">
+                        <h5 class="card-title">Điểm tạo sự kiện</h5>
+                        <p class="card-text fs-5">
+                          <strong>{{ created_score }}</strong>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- School Info Section (View only) -->
+                <div class="card mb-4 shadow-sm">
+                  <div class="card-body">
+                    <h5 class="card-title">Thông tin trường học</h5>
+                    <p><strong>Trường:</strong> {{ school_name }}</p>
+                    <p><strong>Email trường:</strong> {{ email_school }}</p>
+                    <p>
+                      <strong>Địa chỉ trường:</strong> {{ school_location }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Editable Personal Info -->
+                <form method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                      <h5 class="card-title mb-3">Thông tin cá nhân</h5>
+
+                      <div class="mb-3">
+                        <label for="avatar" class="form-label"
+                          >Ảnh đại diện</label
+                        ><br />
+                        <img
+                          src="{{ avatar_url }}"
+                          alt="Avatar"
+                          class="rounded-circle mb-2"
+                          width="100"
+                          height="100"
+                        />
+                        <input
+                          class="form-control"
+                          type="file"
+                          id="avatar"
+                          name="avatar"
+                        />
+                      </div>
+
+                      <div class="mb-3">
+                        <label for="full_name" class="form-label"
+                          >Họ và tên</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="full_name"
+                          name="full_name"
+                          value="{{ full_name }}"
+                        />
+                      </div>
+
+                      <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input
+                          type="email"
+                          class="form-control"
+                          id="email"
+                          name="email"
+                          value="{{ email }}"
+                        />
+                      </div>
+
+                      <div class="mb-3">
+                        <label for="phone" class="form-label"
+                          >Số điện thoại</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="phone"
+                          name="phone"
+                          value="{{ phone }}"
+                        />
+                      </div>
+
+                      <button type="submit" class="btn btn-primary">
+                        Cập nhật thông tin
+                      </button>
+                    </div>
+                  </div>
+                </form>
+
+                <!-- Change Password Section -->
+                <div class="card shadow-sm">
+                  <div class="card-body">
+                    <h5 class="card-title">Đổi mật khẩu</h5>
+                    <form method="post" action="{% url 'change_password' %}">
+                      {% csrf_token %}
+                      <div class="mb-3">
+                        <label for="old_password" class="form-label"
+                          >Mật khẩu hiện tại</label
+                        >
+                        <input
+                          type="password"
+                          class="form-control"
+                          id="old_password"
+                          name="old_password"
+                          required
+                        />
+                      </div>
+
+                      <div class="mb-3">
+                        <label for="new_password" class="form-label"
+                          >Mật khẩu mới</label
+                        >
+                        <input
+                          type="password"
+                          class="form-control"
+                          id="new_password"
+                          name="new_password"
+                          required
+                        />
+                      </div>
+
+                      <div class="mb-3">
+                        <label for="confirm_password" class="form-label"
+                          >Xác nhận mật khẩu mới</label
+                        >
+                        <input
+                          type="password"
+                          class="form-control"
+                          id="confirm_password"
+                          name="confirm_password"
+                          required
+                        />
+                      </div>
+
+                      <button type="submit" class="btn btn-warning">
+                        Đổi mật khẩu
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lịch sử giao dịch tab -->
+            <div class="tab-pane fade" id="transaction-history">
+              <h4 class="mb-4">Lịch sử giao dịch</h4>
+
+              <ul class="list-group">
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <strong>Mã giao dịch:</strong> TXN001<br />
+                      <strong>Nội dung:</strong> Quyên góp từ thiện
+                    </div>
+                    <div class="text-end">
+                      <strong>Số tiền:</strong> 200,000 đ<br />
+                      <small class="text-muted">10/05/2025 14:30</small>
+                    </div>
+                  </div>
+                </li>
+
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <strong>Mã giao dịch:</strong> TXN002<br />
+                      <strong>Nội dung:</strong> Thanh toán sản phẩm thanh lý
+                    </div>
+                    <div class="text-end">
+                      <strong>Số tiền:</strong> 500,000 đ<br />
+                      <small class="text-muted">11/05/2025 09:15</small>
+                    </div>
+                  </div>
+                </li>
+
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between">
+                    <div>
+                      <strong>Mã giao dịch:</strong> TXN003<br />
+                      <strong>Nội dung:</strong> Đóng góp cho sự kiện
+                    </div>
+                    <div class="text-end">
+                      <strong>Số tiền:</strong> 100,000 đ<br />
+                      <small class="text-muted">12/05/2025 17:45</small>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Báo cáo chi tiêu cá nhân tab -->
+            <div class="tab-pane fade" id="spending-report">
+              <h4 class="mb-4">Báo cáo chi tiêu cá nhân</h4>
+
+              <div class="row g-4">
+                <!-- Pie chart -->
+                <div class="col-md-6">
+                  <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                      <h5 class="card-title text-center">
+                        Chi tiêu theo danh mục
+                      </h5>
+                      <canvas
+                        id="spendingCategoryChart"
+                        style="height: 180px"
+                      ></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Bar chart -->
+                <div class="col-md-6">
+                  <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                      <h5 class="card-title text-center">
+                        Chi tiêu theo tháng
+                      </h5>
+                      <canvas
+                        id="monthlySpendingChart"
+                        style="height: 180px"
+                      ></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Line chart -->
+                <div class="col-md-6">
+                  <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                      <h5 class="card-title text-center">
+                        Xu hướng chi tiêu theo tuần
+                      </h5>
+                      <canvas id="trendChart" style="height: 180px"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Doughnut chart -->
+                <div class="col-md-6">
+                  <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                      <h5 class="card-title text-center">
+                        Tỷ lệ Quyên góp vs Mua hàng
+                      </h5>
+                      <canvas
+                        id="donationVsPurchaseChart"
+                        style="height: 180px"
+                      ></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-muted py-3 mt-5">
+      <div>
+        © 2025 Trang Thanh Lý & Quyên Góp | Liên hệ: contact@example.com
+      </div>
+    </footer>
+
+    <script>
+      // Pie Chart - Spending Categories
+      new Chart(document.getElementById("spendingCategoryChart"), {
+        type: "pie",
+        data: {
+          labels: ["Ăn uống", "Giáo dục", "Đi lại", "Khác"],
+          datasets: [
+            {
+              data: [300000, 150000, 100000, 50000],
+              backgroundColor: ["#4caf50", "#2196f3", "#ff9800", "#9c27b0"],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "Chi tiêu theo danh mục",
+            },
+          },
+        },
+      });
+
+      // Bar Chart - Monthly Spending
+      new Chart(document.getElementById("monthlySpendingChart"), {
+        type: "bar",
+        data: {
+          labels: ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4"],
+          datasets: [
+            {
+              label: "Chi tiêu (VNĐ)",
+              data: [500000, 400000, 600000, 450000],
+              backgroundColor: "#2196f3",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "Chi tiêu theo tháng",
+            },
+          },
+        },
+      });
+
+      // Line Chart - Spending Trend
+      new Chart(document.getElementById("trendChart"), {
+        type: "line",
+        data: {
+          labels: ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4"],
+          datasets: [
+            {
+              label: "Chi tiêu (VNĐ)",
+              data: [120000, 150000, 170000, 160000],
+              borderColor: "#f44336",
+              fill: false,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "Xu hướng chi tiêu theo tuần",
+            },
+          },
+        },
+      });
+
+      // Doughnut Chart - Donation vs. Purchase
+      new Chart(document.getElementById("donationVsPurchaseChart"), {
+        type: "doughnut",
+        data: {
+          labels: ["Quyên góp", "Mua hàng"],
+          datasets: [
+            {
+              data: [350000, 650000],
+              backgroundColor: ["#4caf50", "#ff9800"],
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "Tỷ lệ Quyên góp vs Mua hàng",
+            },
+          },
+        },
+      });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
