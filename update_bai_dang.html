@@ -2,290 +2,641 @@
 {% load static %}
 
 <html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chi tiết bài đăng thanh lý</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chi tiết bài đăng thanh lý</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
 
-  <link href="./custom.css" rel="stylesheet">
-</head>
-<body>
-
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/">
-      <img src="{% static 'images/logo.png' %}" alt="Logo" width="40" height="40" class="d-inline-block align-text-top">
-      Thanh Lý & Gây Quỹ
-    </a>
-
-    <form class="d-flex mx-auto w-50" action="/search/" method="get">
-      <input class="form-control me-2" type="search" name="q" placeholder="Tìm sản phẩm hoặc sự kiện..." aria-label="Search">
-      <button class="btn btn-outline-success" type="submit">Tìm</button>
-    </form>
-
-    <div>
-      {% if request.user.is_authenticated %}
-        <span class="me-2">Xin chào, {{ request.user.username }}</span>
-        <!-- Nút đăng xuất -->
-        <a href="{% url 'logout' %}" class="btn btn-outline-danger">Đăng xuất</a>
-        
-        <!-- Biểu tượng thông báo -->
-        <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#notificationModal">
-          <i class="bi bi-bell"></i> Thông báo
+    <link href="./custom.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+          <img
+            src="{% static 'images/logo.png' %}"
+            alt="Logo"
+            width="40"
+            height="40"
+            class="d-inline-block align-text-top"
+          />
+          Thanh Lý & Gây Quỹ
         </a>
-      {% else %}
-        <a href="#" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập</a>
-      {% endif %}
-    </div>
-  </div>
-</nav>
 
-<!-- Modal Đăng Nhập -->
-<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form class="modal-content" method="post" action="{% url 'login' %}">
-      {% csrf_token %}
-      <div class="modal-header">
-        <h5 class="modal-title">Đăng nhập</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-      </div>
-      <div class="modal-body">
-        {% if login_failed %}
-        <div class="alert alert-danger">Thông tin đăng nhập không chính xác. Vui lòng thử lại.</div>
-        {% endif %}
-        <div class="mb-3">
-          <label for="username" class="form-label">Tên đăng nhập</label>
-          <input type="text" class="form-control" id="username" name="username" required>
-        </div>
-        <div class="mb-3">
-          <label for="password" class="form-label">Mật khẩu</label>
-          <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-        <div class="mb-2">
-          <a href="/password-reset/">Quên mật khẩu?</a>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Đăng nhập</button>
-      </div>
-    </form>
-  </div>
-</div>
+        <form class="d-flex mx-auto w-50" action="/search/" method="get">
+          <input
+            class="form-control me-2"
+            type="search"
+            name="q"
+            placeholder="Tìm sản phẩm hoặc sự kiện..."
+            aria-label="Search"
+          />
+          <button class="btn btn-outline-success" type="submit">Tìm</button>
+        </form>
 
-<!-- Modal Thông báo -->
-<div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Thông báo</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-      </div>
-      <div class="modal-body">
-        <ul>
-          {% for notification in notifications %}
-          <li>
-            <strong>{{ notification.title }}</strong>
-            <p>{{ notification.content }}</p>
-            <small>{{ notification.noti_time }}</small>
-          </li>
-          {% empty %}
-          <p>Không có thông báo mới.</p>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
+        <div>
+          {% if request.user.is_authenticated %}
+          <span class="me-2">Xin chào, {{ request.user.username }}</span>
+          <!-- Nút đăng xuất -->
+          <a href="{% url 'logout' %}" class="btn btn-outline-danger"
+            >Đăng xuất</a
+          >
 
-<div class="container mt-5 mb-5">
-  <h2 class="mb-4">Cập nhật Bài đăng</h2>
-
-  <form id="updateThanhLyForm">
-    <div class="row">
-      <!-- Input Section: now on the LEFT -->
-      <div class="col-md-7">
-        <div class="mb-3">
-          <label class="form-label">Ngày tạo</label>
-          <input type="text" class="form-control" name="date_created" value="10/05/2025" readonly />
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Tiêu đề</label>
-          <input type="text" class="form-control" name="title" value="Bài đăng thanh lý 1" />
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Nội dung</label>
-          <textarea class="form-control" name="content" rows="3">Đây là nội dung chi tiết của bài thanh lý.</textarea>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Danh mục</label>
-          <select class="form-select" name="category">
-            <option value="Đồ điện tử" selected>Đồ điện tử</option>
-            <option value="Đồ gia dụng">Đồ gia dụng</option>
-            <option value="Sách">Sách</option>
-            <option value="Thời trang">Thời trang</option>
-            <option value="Khác">Khác</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Tên sản phẩm</label>
-          <input type="text" class="form-control" name="product_name" value="Tai nghe Sony" />
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Thời gian đã sử dụng</label>
-          <input type="text" class="form-control" name="product_used_period" value="6 tháng" />
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Giá mong muốn (VND)</label>
-          <input type="number" class="form-control" name="price" value="500000" />
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Loại bài đăng</label>
-          <select class="form-select" name="type_post" readonly disabled>
-            <option value="Thanh lý" selected>Thanh lý</option>
-            <option value="Trao đổi">Trao đổi</option>
-          </select>
+          <!-- Biểu tượng thông báo -->
+          <a
+            href="#"
+            class="btn btn-outline-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#notificationModal"
+          >
+            <i class="bi bi-bell"></i> Thông báo
+          </a>
+          {% else %}
+          <a
+            href="#"
+            class="btn btn-outline-primary me-2"
+            data-bs-toggle="modal"
+            data-bs-target="#loginModal"
+            >Đăng nhập</a
+          >
+          {% endif %}
         </div>
       </div>
+    </nav>
 
-      <!-- Image + Requesters Section: now on the RIGHT -->
-      <div class="col-md-5 d-flex flex-column">
-        <!-- Image Upload -->
-        <div class="mb-3">
-          <label class="form-label">Hình ảnh sản phẩm</label>
-          <input type="file" class="form-control" name="product_image" />
-          <img src="/static/images/thanhly1.jpg" class="img-fluid mt-3" alt="Hình ảnh hiện tại">
-        </div>
-
-        <!-- Danh sách người yêu cầu thanh lý -->
-        <div class="card mt-3 flex-grow-1 d-flex flex-column" style="max-height: 100%; overflow-y: auto;">
-          <div class="card-header bg-light fw-bold">
-            Danh sách người yêu cầu thanh lý
+    <!-- Modal Đăng Nhập -->
+    <div
+      class="modal fade"
+      id="loginModal"
+      tabindex="-1"
+      aria-labelledby="loginModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <form class="modal-content" method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title">Đăng nhập</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Đóng"
+            ></button>
           </div>
-          <div class="p-3 border-bottom">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Tìm kiếm theo tên hoặc email..."
-              id="requesterSearch"
-              oninput="filterRequesters()"
-            />
+          <div class="modal-body">
+            {% if login_failed %}
+            <div class="alert alert-danger">
+              Thông tin đăng nhập không chính xác. Vui lòng thử lại.
+            </div>
+            {% endif %}
+            <div class="mb-3">
+              <label for="username" class="form-label">Tên đăng nhập</label>
+              <input
+                type="text"
+                class="form-control"
+                id="username"
+                name="username"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Mật khẩu</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
+                required
+              />
+            </div>
+            <div class="mb-2">
+              <a href="/password-reset/">Quên mật khẩu?</a>
+            </div>
           </div>
-          <div class="card-body p-2" id="requesterList" style="overflow-y: auto; max-height: 500px;">
-            <!-- Sample Requester Card -->
-            <div class="card mb-2 requester-item">
-              <div class="card-body d-flex justify-content-between align-items-center p-2">
-                <div>
-                  <h6 class="mb-0 requester-name">Nguyễn Văn A</h6>
-                  <small class="requester-email">nguyenvana@example.com</small>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Đăng nhập</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Thông báo -->
+    <div
+      class="modal fade"
+      id="notificationModal"
+      tabindex="-1"
+      aria-labelledby="notificationModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Thông báo</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Đóng"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <ul>
+              {% for notification in notifications %}
+              <li>
+                <strong>{{ notification.title }}</strong>
+                <p>{{ notification.content }}</p>
+                <small>{{ notification.noti_time }}</small>
+              </li>
+              {% empty %}
+              <p>Không có thông báo mới.</p>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container mt-5 mb-5">
+      <h2 class="mb-4">Cập nhật Bài đăng</h2>
+
+      <form id="updateThanhLyForm">
+        <div class="row">
+          <!-- Input Section: now on the LEFT -->
+          <div class="col-md-7">
+            <div class="mb-3">
+              <label class="form-label">Trạng thái bài đăng</label>
+              <input
+                type="text"
+                class="form-control"
+                name="status"
+                value="Đang chờ xác nhận"
+                readonly
+                disabled
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Ngày tạo</label>
+              <input
+                type="text"
+                class="form-control"
+                name="date_created"
+                value="10/05/2025"
+                readonly
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Loại bài đăng</label>
+              <select class="form-select" disabled>
+                <option value="Thanh lý" selected>Thanh lý</option>
+                <option value="Trao đổi">Trao đổi</option>
+              </select>
+              <input type="hidden" name="type_post" value="Thanh lý" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Tiêu đề</label>
+              <input
+                type="text"
+                class="form-control"
+                name="title"
+                value="Bài đăng thanh lý 1"
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Nội dung</label>
+              <textarea class="form-control" name="content" rows="3">
+Đây là nội dung chi tiết của bài thanh lý.</textarea
+              >
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Danh mục</label>
+              <select class="form-select" name="category">
+                <option value="Đồ điện tử" selected>Đồ điện tử</option>
+                <option value="Đồ gia dụng">Đồ gia dụng</option>
+                <option value="Sách">Sách</option>
+                <option value="Thời trang">Thời trang</option>
+                <option value="Khác">Khác</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Tên sản phẩm</label>
+              <input
+                type="text"
+                class="form-control"
+                name="product_name"
+                value="Tai nghe Sony"
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Thời gian đã sử dụng</label>
+              <input
+                type="text"
+                class="form-control"
+                name="product_used_period"
+                value="6 tháng"
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Giá mong muốn (VND)</label>
+              <input
+                type="number"
+                class="form-control"
+                name="price"
+                value="500000"
+              />
+            </div>
+          </div>
+
+          <!-- Image + Requesters Section: now on the RIGHT -->
+          <div class="col-md-5 d-flex flex-column">
+            <!-- Image Upload -->
+            <div class="mb-3">
+              <label class="form-label">Hình ảnh sản phẩm</label>
+              <input type="file" class="form-control" name="product_image" />
+              <img
+                src="/static/images/thanhly1.jpg"
+                class="img-fluid mt-3"
+                alt="Hình ảnh hiện tại"
+              />
+            </div>
+
+            <!-- Danh sách người yêu cầu thanh lý -->
+            <div
+              class="card mt-3 flex-grow-1 d-flex flex-column"
+              style="max-height: 100%; overflow-y: auto"
+            >
+              <div class="card-header bg-light fw-bold">
+                Danh sách người yêu cầu thanh lý/trao đổi
+              </div>
+              <div class="p-3 border-bottom">
+                <!-- Row 1: Search box -->
+                <div class="mb-3">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Tìm kiếm theo tên hoặc email..."
+                    id="requesterSearch"
+                    oninput="renderRequesters()"
+                  />
                 </div>
-                <button class="btn btn-sm btn-success btn-confirm-price">Xác nhận</button>
+
+                <!-- Row 2: Filters in grid (2 columns) -->
+                <!--Chỉnh sửa các trường filter sao cho phù hợp với bài đăng-->
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <select
+                      class="form-select"
+                      id="filterRating"
+                      onchange="renderRequesters()"
+                    >
+                      <option value="">Độ uy tín</option>
+                      <option value="4">Trên 4⭐</option>
+                      <option value="3">Trên 3⭐</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <select
+                      class="form-select"
+                      id="filterValue"
+                      onchange="renderRequesters()"
+                    >
+                      <option value="">Giá trị món đồ</option>
+                      <option value="low">Dưới 1 triệu</option>
+                      <option value="medium">1-5 triệu</option>
+                      <option value="high">Trên 5 triệu</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <select
+                      class="form-select"
+                      id="filterCondition"
+                      onchange="renderRequesters()"
+                    >
+                      <option value="">Tình trạng sử dụng</option>
+                      <option value="new">Mới</option>
+                      <option value="used">Đã qua sử dụng</option>
+                      <option value="old">Cũ</option>
+                    </select>
+                  </div>
+
+                  <div class="col-md-6">
+                    <select
+                      class="form-select"
+                      id="filterCategory"
+                      onchange="renderRequesters()"
+                    >
+                      <option value="">Danh mục</option>
+                      <option value="electronics">Điện tử</option>
+                      <option value="fashion">Thời trang</option>
+                      <option value="books">Sách</option>
+                      <option value="others">Khác</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div
+                class="card-body p-2"
+                id="requesterList"
+                style="overflow-y: auto; max-height: 500px"
+              >
+                <!-- Sample Requester Card -->
+                <div class="card mb-2 requester-item">
+                  <div
+                    class="card-body d-flex justify-content-between align-items-center p-2"
+                  >
+                    <div>
+                      <h6 class="mb-0 requester-name">Nguyễn Văn A</h6>
+                      <small class="requester-email"
+                        >nguyenvana@example.com</small
+                      >
+                    </div>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-success btn-confirm-price"
+                    >
+                      Xác nhận
+                    </button>
+                  </div>
+                </div>
+                <div class="card mb-2 requester-item">
+                  <div
+                    class="card-body d-flex justify-content-between align-items-center p-2"
+                  >
+                    <div>
+                      <h6 class="mb-0 requester-name">Trần Thị B</h6>
+                      <small class="requester-email"
+                        >tranthib@example.com</small
+                      >
+                    </div>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-success btn-confirm-price"
+                    >
+                      Xác nhận
+                    </button>
+                  </div>
+                </div>
+                <!--Thẻ mẫu chõ yêu cầu trao đổi-->
+                <div class="card mb-3">
+                  <div class="row g-0 align-items-center">
+                    <!-- Product Image -->
+                    <div class="col-md-3">
+                      <img
+                        src="https://via.placeholder.com/150"
+                        alt="Product Image"
+                        class="img-fluid rounded-start"
+                      />
+                    </div>
+
+                    <!-- Product Info -->
+                    <div class="col-md-5">
+                      <div class="card-body">
+                        <h5 class="card-title mb-1">
+                          Tai nghe Sony WH-1000XM4
+                        </h5>
+                        <p class="card-text mb-2">
+                          Tình trạng: Mới<br />
+                          Giá trị ước tính: 4.500.000đ<br />
+                          Danh mục: Điện tử
+                        </p>
+                        <button
+                          type="button"
+                          class="btn btn-outline-primary btn-sm"
+                          data-bs-toggle="modal"
+                          data-bs-target="#offerDetailModal"
+                        >
+                          Xem chi tiết đề nghị
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- User Info + Action -->
+                    <div class="col-md-4 border-start">
+                      <div class="card-body">
+                        <h6 class="mb-1">
+                          Người đề nghị:
+                          <strong>Nguyễn Văn A</strong>
+                        </h6>
+                        <p class="mb-2 small text-muted">
+                          nguyenvana@example.com
+                        </p>
+                        <button
+                          type="button"
+                          class="btn btn-success btn-sm"
+                          onclick="confirmExchange('Nguyễn Văn A')"
+                        >
+                          Xác nhận
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- More requester cards can be added here -->
               </div>
             </div>
-            <div class="card mb-2 requester-item">
-              <div class="card-body d-flex justify-content-between align-items-center p-2">
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <a href="javascript:history.back()" class="btn btn-secondary"
+            >Quay lại</a
+          >
+          <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+        </div>
+      </form>
+    </div>
+
+    <div
+      class="modal fade"
+      id="finalPriceModal"
+      tabindex="-1"
+      aria-labelledby="finalPriceModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <form class="modal-content" id="finalPriceForm">
+          <div class="modal-header">
+            <h5 class="modal-title">Xác nhận thanh lý</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Đóng"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <!-- 👤 Selected User Info -->
+            <div class="">
+              <label class="form-label">Người nhận thanh lý</label>
+              <div id="chosenUserInfo" class="border rounded p-2 bg-light">
                 <div>
-                  <h6 class="mb-0 requester-name">Trần Thị B</h6>
-                  <small class="requester-email">tranthib@example.com</small>
+                  <strong>Tên:</strong>
+                  <span id="chosenUserName">--</span>
                 </div>
-                <button class="btn btn-sm btn-success btn-confirm-price">Xác nhận</button>
+                <div>
+                  <strong>Email:</strong>
+                  <span id="chosenUserEmail">--</span>
+                </div>
               </div>
             </div>
-            <!-- More requester cards can be added here -->
+
+            <!-- ❓ Confirmation Prompt -->
+            <p class="text-danger fw-bold mt-3">
+              Bạn có chắc đây là người bạn đã thanh lý? <br />
+              Vui lòng nhập giá trị trao đổi bên dưới.
+            </p>
+
+            <!-- 💵 Final Price Input -->
+            <div class="mb-3">
+              <label for="finalPrice" class="form-label"
+                >Giá trị trao đổi (VND)</label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="finalPrice"
+                name="finalPrice"
+                required
+                placeholder="Nhập giá trị trao đổi..."
+              />
+            </div>
+
+            <!-- 🕵️ Hidden User ID -->
+            <input type="hidden" id="chosenUserId" name="userId" />
+          </div>
+
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Xác nhận</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!--Offer detail modal-->
+    <div
+      class="modal fade"
+      id="offerDetailModal"
+      tabindex="-1"
+      aria-labelledby="offerDetailModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="offerDetailModalLabel">
+              Chi tiết đề nghị trao đổi
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Đóng"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <!-- Image -->
+              <div class="col-md-4">
+                <img
+                  src="https://via.placeholder.com/250"
+                  alt="Ảnh sản phẩm"
+                  class="img-fluid rounded"
+                />
+              </div>
+
+              <!-- Details -->
+              <div class="col-md-8">
+                <h5>Tai nghe Sony WH-1000XM4</h5>
+                <p><strong>Danh mục:</strong> Điện tử</p>
+                <p>
+                  <strong>Người đề nghị:</strong> Nguyễn Văn A
+                  (nguyenvana@example.com)
+                </p>
+                <p>
+                  <strong>Mô tả:</strong> Tai nghe chống ồn, mới mua 2 tháng,
+                  đầy đủ hộp.
+                </p>
+                <p><strong>Thời gian đã sử dụng:</strong> 2 tháng</p>
+                <p><strong>Trạng thái đề nghị:</strong> Chờ xác nhận</p>
+                <p>
+                  <strong>Cập nhật lần cuối:</strong>
+                  09/05/2025 10:32
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Đóng
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="mt-4">
-      <a href="javascript:history.back()" class="btn btn-secondary">Quay lại</a>
-      <button type="submit" class="btn btn-success">Lưu thay đổi</button>
-    </div>
-  </form>
-</div>
-
-<div class="modal fade" id="finalPriceModal" tabindex="-1" aria-labelledby="finalPriceModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form class="modal-content" id="finalPriceForm">
-      <div class="modal-header">
-        <h5 class="modal-title">Xác nhận thanh lý</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+    <!-- Footer -->
+    <footer class="bg-light text-center text-muted py-3 mt-5">
+      <div>
+        © 2025 Trang Trao Đổi & Quyên Góp | Liên hệ: contact@example.com
       </div>
-      <div class="modal-body">
-        
-        <!-- 👤 Selected User Info -->
-        <div class="">
-          <label class="form-label">Người nhận thanh lý</label>
-          <div id="chosenUserInfo" class="border rounded p-2 bg-light">
-            <div><strong>Tên:</strong> <span id="chosenUserName">--</span></div>
-            <div><strong>Email:</strong> <span id="chosenUserEmail">--</span></div>
-          </div>
-        </div>
+    </footer>
 
-        <!-- ❓ Confirmation Prompt -->
-        <p class="text-danger fw-bold mt-3">
-          Bạn có chắc đây là người bạn đã thanh lý? <br>
-          Vui lòng nhập giá trị trao đổi bên dưới.
-        </p>
-
-        <!-- 💵 Final Price Input -->
-        <div class="mb-3">
-          <label for="finalPrice" class="form-label">Giá trị trao đổi (VND)</label>
-          <input type="number" class="form-control" id="finalPrice" name="finalPrice" required placeholder="Nhập giá trị trao đổi...">
-        </div>
-
-        <!-- 🕵️ Hidden User ID -->
-        <input type="hidden" id="chosenUserId" name="userId">
-      </div>
-
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Xác nhận</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-  
-<!-- Footer -->
-<footer class="bg-light text-center text-muted py-3 mt-5">
-    <div>© 2025 Trang Trao Đổi & Quyên Góp | Liên hệ: contact@example.com</div>
-</footer>
-  
-<script>
-    function toggleCategories() {
+    <script>
+      function toggleCategories() {
         const el = document.getElementById("all-categories");
         el.style.display = el.style.display === "none" ? "block" : "none";
-    }
+      }
 
-    document.getElementById("updateThanhLyForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      alert("Dữ liệu đã được cập nhật (demo).");
-      // You can send data using fetch/AJAX here
-    });
+      document
+        .getElementById("updateThanhLyForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          alert("Dữ liệu đã được cập nhật (demo).");
+          // You can send data using fetch/AJAX here
+        });
 
-    document.querySelectorAll('.btn-confirm-price').forEach(button => {
-    button.addEventListener('click', function (e) {
-      e.preventDefault();
+      document.querySelectorAll(".btn-confirm-price").forEach((button) => {
+        button.addEventListener("click", function (e) {
+          e.preventDefault();
 
-      // Optionally, get requester info here:
-      const card = this.closest('.requester-item');
-      const name = card.querySelector('.requester-name')?.textContent;
-      const email = card.querySelector('.requester-email')?.textContent;
+          // Optionally, get requester info here:
+          const card = this.closest(".requester-item");
+          const name = card.querySelector(".requester-name")?.textContent;
+          const email = card.querySelector(".requester-email")?.textContent;
 
-      // Set data in modal if needed
-      // document.getElementById('someFieldInModal').value = name;
+          // Set data in modal if needed
+          // document.getElementById('someFieldInModal').value = name;
 
-      const modal = new bootstrap.Modal(document.getElementById('finalPriceModal'));
-      modal.show();
-    });
-  });
+          const modal = new bootstrap.Modal(
+            document.getElementById("finalPriceModal")
+          );
+          modal.show();
+        });
+      });
 
-</script>
+      function confirmExchange(userName) {
+        if (confirm(`Bạn có chắc đã trao đổi món hàng với ${userName}?`)) {
+          // Handle confirmation logic here (e.g., send request, update status, etc.)
+          alert("Đã xác nhận trao đổi!");
+        }
+      }
+    </script>
 
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
-

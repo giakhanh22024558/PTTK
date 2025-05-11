@@ -2,270 +2,425 @@
 {% load static %}
 
 <html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chi tiết bài đăng thanh lý</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chi tiết bài đăng thanh lý</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
 
-  <link href="./custom.css" rel="stylesheet">
-</head>
-<body>
-
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/">
-      <img src="{% static 'images/logo.png' %}" alt="Logo" width="40" height="40" class="d-inline-block align-text-top">
-      Thanh Lý & Gây Quỹ
-    </a>
-
-    <form class="d-flex mx-auto w-50" action="/search/" method="get">
-      <input class="form-control me-2" type="search" name="q" placeholder="Tìm sản phẩm hoặc sự kiện..." aria-label="Search">
-      <button class="btn btn-outline-success" type="submit">Tìm</button>
-    </form>
-
-    <div>
-      {% if request.user.is_authenticated %}
-        <span class="me-2">Xin chào, {{ request.user.username }}</span>
-        <!-- Nút đăng xuất -->
-        <a href="{% url 'logout' %}" class="btn btn-outline-danger">Đăng xuất</a>
-        
-        <!-- Biểu tượng thông báo -->
-        <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#notificationModal">
-          <i class="bi bi-bell"></i> Thông báo
+    <link href="./custom.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+          <img
+            src="{% static 'images/logo.png' %}"
+            alt="Logo"
+            width="40"
+            height="40"
+            class="d-inline-block align-text-top"
+          />
+          Thanh Lý & Gây Quỹ
         </a>
-      {% else %}
-        <a href="#" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Đăng nhập</a>
-      {% endif %}
+
+        <form class="d-flex mx-auto w-50" action="/search/" method="get">
+          <input
+            class="form-control me-2"
+            type="search"
+            name="q"
+            placeholder="Tìm sản phẩm hoặc sự kiện..."
+            aria-label="Search"
+          />
+          <button class="btn btn-outline-success" type="submit">Tìm</button>
+        </form>
+
+        <div>
+          {% if request.user.is_authenticated %}
+          <span class="me-2">Xin chào, {{ request.user.username }}</span>
+          <!-- Nút đăng xuất -->
+          <a href="{% url 'logout' %}" class="btn btn-outline-danger"
+            >Đăng xuất</a
+          >
+
+          <!-- Biểu tượng thông báo -->
+          <a
+            href="#"
+            class="btn btn-outline-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#notificationModal"
+          >
+            <i class="bi bi-bell"></i> Thông báo
+          </a>
+          {% else %}
+          <a
+            href="#"
+            class="btn btn-outline-primary me-2"
+            data-bs-toggle="modal"
+            data-bs-target="#loginModal"
+            >Đăng nhập</a
+          >
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    <!-- Modal Đăng Nhập -->
+    <div
+      class="modal fade"
+      id="loginModal"
+      tabindex="-1"
+      aria-labelledby="loginModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <form class="modal-content" method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title">Đăng nhập</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Đóng"
+            ></button>
+          </div>
+          <div class="modal-body">
+            {% if login_failed %}
+            <div class="alert alert-danger">
+              Thông tin đăng nhập không chính xác. Vui lòng thử lại.
+            </div>
+            {% endif %}
+            <div class="mb-3">
+              <label for="username" class="form-label">Tên đăng nhập</label>
+              <input
+                type="text"
+                class="form-control"
+                id="username"
+                name="username"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Mật khẩu</label>
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
+                required
+              />
+            </div>
+            <div class="mb-2">
+              <a href="/password-reset/">Quên mật khẩu?</a>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Đăng nhập</button>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
-</nav>
 
-<!-- Modal Đăng Nhập -->
-<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form class="modal-content" method="post" action="{% url 'login' %}">
-      {% csrf_token %}
-      <div class="modal-header">
-        <h5 class="modal-title">Đăng nhập</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-      </div>
-      <div class="modal-body">
-        {% if login_failed %}
-        <div class="alert alert-danger">Thông tin đăng nhập không chính xác. Vui lòng thử lại.</div>
-        {% endif %}
-        <div class="mb-3">
-          <label for="username" class="form-label">Tên đăng nhập</label>
-          <input type="text" class="form-control" id="username" name="username" required>
+    <!-- Modal Thông báo -->
+    <div
+      class="modal fade"
+      id="notificationModal"
+      tabindex="-1"
+      aria-labelledby="notificationModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Thông báo</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Đóng"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <ul>
+              {% for notification in notifications %}
+              <li>
+                <strong>{{ notification.title }}</strong>
+                <p>{{ notification.content }}</p>
+                <small>{{ notification.noti_time }}</small>
+              </li>
+              {% empty %}
+              <p>Không có thông báo mới.</p>
+              {% endfor %}
+            </ul>
+          </div>
         </div>
-        <div class="mb-3">
-          <label for="password" class="form-label">Mật khẩu</label>
-          <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-        <div class="mb-2">
-          <a href="/password-reset/">Quên mật khẩu?</a>
-        </div>
       </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Đăng nhập</button>
-      </div>
-    </form>
-  </div>
-</div>
+    </div>
 
-<!-- Modal Thông báo -->
-<div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Thông báo</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+    <!--Post information-->
+    <div class="container my-4">
+      <h4 class="mb-4">Chi tiết bài đăng thanh lý</h4>
+
+      <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-6 mb-3">
+          <img
+            src="{% static 'images/product1.jpg' %}"
+            class="img-fluid rounded border"
+            alt="Ảnh sản phẩm"
+          />
+        </div>
+
+        <!-- Post Details -->
+        <div class="col-md-6">
+          <ul class="list-group mb-3">
+            <li class="list-group-item">
+              <strong>Tiêu đề:</strong> Bán lại iPhone 12 Pro
+            </li>
+            <li class="list-group-item">
+              <strong>Tên sản phẩm:</strong> iPhone 12 Pro 128GB
+            </li>
+            <li class="list-group-item">
+              <strong>Thể loại:</strong> Điện thoại
+            </li>
+            <li class="list-group-item">
+              <strong>Loại bài đăng:</strong> Thanh lý
+            </li>
+            <li class="list-group-item">
+              <strong>Thời gian đã sử dụng:</strong> 1 năm
+            </li>
+            <li class="list-group-item">
+              <strong>Giá mong muốn:</strong> 13,000,000 VND
+            </li>
+            <li class="list-group-item">
+              <strong>Trạng thái:</strong> Đang đợi thanh lý
+            </li>
+          </ul>
+
+          <!-- Button to trigger modal -->
+          <div id="actionButtons">
+            <button
+              type="button"
+              class="btn btn-success w-100"
+              data-bs-toggle="modal"
+              data-bs-target="#confirmModal"
+            >
+              <i class="bi bi-cart-fill me-2"></i>Thanh lý ngay
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="modal-body">
-        <ul>
-          {% for notification in notifications %}
-          <li>
-            <strong>{{ notification.title }}</strong>
-            <p>{{ notification.content }}</p>
-            <small>{{ notification.noti_time }}</small>
+
+      <!-- Post Content -->
+      <div class="mt-4">
+        <h5>Nội dung chi tiết</h5>
+        <p>
+          Điện thoại còn mới 98%, pin khỏe, không trầy xước. Mua về chỉ dùng để
+          nghe gọi và chụp ảnh. Bao test 7 ngày, tặng kèm ốp lưng và cáp sạc.
+        </p>
+      </div>
+
+      <!-- Upload User Info Section (Hidden Initially) -->
+      <!-- Upload User Info Section -->
+      <div class="mt-4" id="uploadUserInfo">
+        <h5>Thông tin người bán</h5>
+
+        <!-- Placeholder message -->
+        <div id="placeholderInfo" class="alert alert-info">
+          Thông tin chỉ hiển thị khi bạn xác nhận tham gia thanh lý.
+        </div>
+
+        <!-- Actual user info (hidden initially) -->
+        <ul class="list-group" id="realUserInfo" style="display: none">
+          <li class="list-group-item"><strong>Họ:</strong> Nguyễn</li>
+          <li class="list-group-item"><strong>Tên:</strong> Văn A</li>
+          <li class="list-group-item">
+            <strong>Email:</strong> nguyenvana@example.com
           </li>
-          {% empty %}
-          <p>Không có thông báo mới.</p>
-          {% endfor %}
+          <li class="list-group-item">
+            <strong>Số điện thoại:</strong> 0901234567
+          </li>
+          <li class="list-group-item">
+            <strong>Trường:</strong> Đại học Bách Khoa
+          </li>
+          <li class="list-group-item"><strong>Điểm xã hội:</strong> 85</li>
+          <li class="list-group-item"><strong>Điểm tín dụng:</strong> 92</li>
+          <li class="list-group-item">
+            <strong>Trạng thái tài khoản:</strong> Đang hoạt động
+          </li>
+          <li class="list-group-item"><strong>Vai trò:</strong> Người dùng</li>
         </ul>
       </div>
     </div>
-  </div>
-</div>
 
-<!--Post information-->
-<div class="container my-4">
-  <h4 class="mb-4">Chi tiết bài đăng thanh lý</h4>
-
-  <div class="row">
-    <!-- Product Image -->
-    <div class="col-md-6 mb-3">
-      <img src="{% static 'images/product1.jpg' %}" class="img-fluid rounded border" alt="Ảnh sản phẩm">
-    </div>
-
-    <!-- Post Details -->
-    <div class="col-md-6">
-      <ul class="list-group mb-3">
-        <li class="list-group-item"><strong>Tiêu đề:</strong> Bán lại iPhone 12 Pro</li>
-        <li class="list-group-item"><strong>Tên sản phẩm:</strong> iPhone 12 Pro 128GB</li>
-        <li class="list-group-item"><strong>Thể loại:</strong> Điện thoại</li>
-        <li class="list-group-item"><strong>Loại bài đăng:</strong> Thanh lý</li>
-        <li class="list-group-item"><strong>Thời gian đã sử dụng:</strong> 1 năm</li>
-        <li class="list-group-item"><strong>Giá mong muốn:</strong> 13,000,000 VND</li>
-        <li class="list-group-item"><strong>Trạng thái:</strong> Đang đợi thanh lý</li>
-      </ul>
-
-      <!-- Button to trigger modal -->
-      <div id="actionButtons">
-        <button type="button" class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#confirmModal">
-          <i class="bi bi-cart-fill me-2"></i>Thanh lý ngay
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Post Content -->
-  <div class="mt-4">
-    <h5>Nội dung chi tiết</h5>
-    <p>Điện thoại còn mới 98%, pin khỏe, không trầy xước. Mua về chỉ dùng để nghe gọi và chụp ảnh. Bao test 7 ngày, tặng kèm ốp lưng và cáp sạc.</p>
-  </div>
-
-  <!-- Upload User Info Section (Hidden Initially) -->
-  <!-- Upload User Info Section -->
-  <div class="mt-4" id="uploadUserInfo">
-    <h5>Thông tin người bán</h5>
-    
-    <!-- Placeholder message -->
-    <div id="placeholderInfo" class="alert alert-info">
-      Thông tin chỉ hiển thị khi bạn xác nhận tham gia thanh lý.
-    </div>
-
-    <!-- Actual user info (hidden initially) -->
-    <ul class="list-group" id="realUserInfo" style="display: none;">
-      <li class="list-group-item"><strong>Họ:</strong> Nguyễn</li>
-      <li class="list-group-item"><strong>Tên:</strong> Văn A</li>
-      <li class="list-group-item"><strong>Email:</strong> nguyenvana@example.com</li>
-      <li class="list-group-item"><strong>Số điện thoại:</strong> 0901234567</li>
-      <li class="list-group-item"><strong>Trường:</strong> Đại học Bách Khoa</li>
-      <li class="list-group-item"><strong>Điểm xã hội:</strong> 85</li>
-      <li class="list-group-item"><strong>Điểm tín dụng:</strong> 92</li>
-      <li class="list-group-item"><strong>Trạng thái tài khoản:</strong> Đang hoạt động</li>
-      <li class="list-group-item"><strong>Vai trò:</strong> Người dùng</li>
-    </ul>
-  </div>
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="confirmModalLabel">Xác nhận thanh lý</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-      </div>
-      <div class="modal-body">
-        Bạn có muốn tham gia thanh lý sản phẩm này?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-        <button type="button" class="btn btn-success" id="confirmThanhLyBtn">Xác nhận</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal 2: Confirm Final Price -->
-<div class="modal fade" id="finalPriceModal" tabindex="-1" aria-labelledby="finalPriceModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <form class="modal-content" id="finalPriceForm">
-      <div class="modal-header">
-        <h5 class="modal-title">Xác nhận giá thanh lý</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label for="finalPrice" class="form-label">Giá thanh lý (VND)</label>
-          <input type="number" class="form-control" id="finalPrice" name="finalPrice" required placeholder="Nhập giá thanh lý...">
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="confirmModal"
+      tabindex="-1"
+      aria-labelledby="confirmModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmModalLabel">
+              Xác nhận thanh lý
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Đóng"
+            ></button>
+          </div>
+          <div class="modal-body">
+            Bạn có muốn tham gia thanh lý sản phẩm này?
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Hủy
+            </button>
+            <button
+              type="button"
+              class="btn btn-success"
+              id="confirmThanhLyBtn"
+            >
+              Xác nhận
+            </button>
+          </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Xác nhận</button>
+    </div>
+
+    <!-- Modal 2: Confirm Final Price -->
+    <div
+      class="modal fade"
+      id="finalPriceModal"
+      tabindex="-1"
+      aria-labelledby="finalPriceModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <form class="modal-content" id="finalPriceForm">
+          <div class="modal-header">
+            <h5 class="modal-title">Xác nhận giá thanh lý</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Đóng"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="finalPrice" class="form-label"
+                >Giá thanh lý (VND)</label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="finalPrice"
+                name="finalPrice"
+                required
+                placeholder="Nhập giá thanh lý..."
+              />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Xác nhận</button>
+          </div>
+        </form>
       </div>
-    </form>
-  </div>
-</div>
+    </div>
 
+    <!-- Footer -->
+    <footer class="bg-light text-center text-muted py-3 mt-5">
+      <div>
+        © 2025 Trang Thanh Lý & Quyên Góp | Liên hệ: contact@example.com
+      </div>
+    </footer>
 
-<!-- Footer -->
-<footer class="bg-light text-center text-muted py-3 mt-5">
-  <div>© 2025 Trang Thanh Lý & Quyên Góp | Liên hệ: contact@example.com</div>
-</footer>
+    <script>
+      function toggleCategories() {
+        const el = document.getElementById("all-categories");
+        el.style.display = el.style.display === "none" ? "block" : "none";
+      }
 
-<script>
-  function toggleCategories() {
-    const el = document.getElementById("all-categories");
-    el.style.display = el.style.display === "none" ? "block" : "none";
-  }
+      document.addEventListener("DOMContentLoaded", function () {
+        const confirmBtn = document.getElementById("confirmThanhLyBtn");
+        const uploadInfo = document.getElementById("uploadUserInfo");
+        const actionButtons = document.getElementById("actionButtons");
 
-  document.addEventListener('DOMContentLoaded', function () {
-    const confirmBtn = document.getElementById('confirmThanhLyBtn');
-    const uploadInfo = document.getElementById('uploadUserInfo');
-    const actionButtons = document.getElementById('actionButtons');
+        confirmBtn.addEventListener("click", function () {
+          // Hide first modal
+          document.activeElement.blur(); // Remove focus from confirmThanhLyBtn
+          const confirmModal = bootstrap.Modal.getInstance(
+            document.getElementById("confirmModal")
+          );
+          confirmModal.hide();
 
-    confirmBtn.addEventListener('click', function () {
-      // Hide first modal
-      document.activeElement.blur(); // Remove focus from confirmThanhLyBtn
-      const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
-      confirmModal.hide();
+          // Show user info
+          uploadInfo.style.display = "block";
+          document.getElementById("placeholderInfo").style.display = "none";
+          document.getElementById("realUserInfo").style.display = "block";
+          uploadInfo.scrollIntoView({ behavior: "smooth" });
 
-      // Show user info
-      uploadInfo.style.display = 'block';
-      document.getElementById('placeholderInfo').style.display = 'none';
-      document.getElementById('realUserInfo').style.display = 'block';
-      uploadInfo.scrollIntoView({ behavior: 'smooth' });
-
-      // Replace button
-      actionButtons.innerHTML = `
+          // Replace button
+          actionButtons.innerHTML = `
         <button type="button" class="btn btn-warning w-100" id="xacNhanThanhLyBtn">
           <i class="bi bi-check-circle-fill me-2"></i>Xác nhận thanh lý
         </button>
       `;
 
-      // Add listener to new button
-      const xacNhanBtn = document.getElementById('xacNhanThanhLyBtn');
-      xacNhanBtn.addEventListener('click', function () {
-        const finalPriceModal = new bootstrap.Modal(document.getElementById('finalPriceModal'));
-        finalPriceModal.show();
+          // Add listener to new button
+          const xacNhanBtn = document.getElementById("xacNhanThanhLyBtn");
+          xacNhanBtn.addEventListener("click", function () {
+            const finalPriceModal = new bootstrap.Modal(
+              document.getElementById("finalPriceModal")
+            );
+            finalPriceModal.show();
+          });
+        });
+
+        // Handle final price submission
+        document
+          .getElementById("finalPriceForm")
+          .addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const finalPrice = document
+              .getElementById("finalPrice")
+              .value.trim();
+            if (finalPrice === "") {
+              alert("Vui lòng nhập giá thanh lý.");
+              return;
+            }
+
+            // You can handle the confirmed price here (e.g., send to backend)
+            alert(`Giá thanh lý đã xác nhận: ${finalPrice} VND`);
+
+            // Close modal
+            bootstrap.Modal.getInstance(
+              document.getElementById("finalPriceModal")
+            ).hide();
+          });
       });
-    });
+    </script>
 
-    // Handle final price submission
-    document.getElementById('finalPriceForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      const finalPrice = document.getElementById('finalPrice').value.trim();
-      if (finalPrice === '') {
-        alert('Vui lòng nhập giá thanh lý.');
-        return;
-      }
-
-      // You can handle the confirmed price here (e.g., send to backend)
-      alert(`Giá thanh lý đã xác nhận: ${finalPrice} VND`);
-
-      // Close modal
-      bootstrap.Modal.getInstance(document.getElementById('finalPriceModal')).hide();
-    });
-  });
-
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
 </html>
